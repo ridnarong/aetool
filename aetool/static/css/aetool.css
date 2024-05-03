@@ -1,0 +1,9 @@
+/* CSS for AEToolXBlock */
+
+.aetool_block .count {
+    font-weight: bold;
+}
+
+.aetool_block p {
+    cursor: pointer;
+}
