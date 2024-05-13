@@ -142,7 +142,7 @@ class AEToolXBlock(XBlock):
             "/templates/student.html",
             context={
                 **self._get_context_for_template(),
-                **{'view': 'studio'}
+                **{'view': 'author'}
             },
             i18n_service=self.runtime.service(self, "i18n"),
         ))
