@@ -38,5 +38,5 @@ setup(
             'aetool = aetool:AEToolXBlock',
         ]
     },
-    package_data=package_data("aetool", ["static", "public"]),
+    package_data=package_data("aetool", ["static", "public", "templates"]),
 )
