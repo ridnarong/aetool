@@ -136,7 +136,7 @@ class AEToolXBlock(XBlock):
         frag.initialize_js('AEToolXBlock')
         return frag
 
-    def studio_view(self, context=None):
+    def author_view(self, context=None):
         frag = Fragment()
         frag.add_content(ResourceLoader(__name__).render_django_template(
             "/templates/student.html",
