@@ -98,7 +98,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         """
         username = self.runtime.service(self, 'user').get_current_user().opt_attrs.get(
             'edx-platform.username', '')
-        return 
+        return username
         
     def _get_context_for_template(self):
         return {
