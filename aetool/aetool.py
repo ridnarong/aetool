@@ -31,11 +31,11 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
     )
     aetool = String(
         display_name="AE Tool",
-        choices=[
-            ('simulator', 'Simulator'),
-            ('chatbot', 'Chatbot'),
-            ('bookroll', 'Bookroll'),
-            ('iframe', 'External URL')
+        values=[
+            {"value": 'simulator', "display_name": 'Simulator'},
+            {"value": 'chatbot', "display_name": 'Chatbot'},
+            {"value": 'bookroll', "display_name": 'Bookroll'},
+            {"value": 'iframe', "display_name": 'External URL'},
         ],
         default='iframe',
         help="Select AE Tool",
@@ -77,6 +77,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         help="Element display option",
         scope=Scope.settings
     )
+    editable_fields = ('display_name', 'aetool', 'btn_text', 'iframe_url', 'width', 'height', 'display')
 
     @property
     def icon_class(self):
