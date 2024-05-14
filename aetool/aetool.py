@@ -6,13 +6,15 @@ from xblock.core import XBlock
 from xblock.fields import String, Integer, Scope
 try:
     from xblock.utils.resources import ResourceLoader
-except ModuleNotFoundError:
+    from xblock.utils.studio_editable import StudioEditableXBlockMixin
+except ModuleNotFoundError:  # For backward compatibility with releases older than Quince.
     from xblockutils.resources import ResourceLoader
+    from xblockutils.studio_editable import StudioEditableXBlockMixin
 
 @XBlock.wants('settings')
 @XBlock.wants('user')
 @XBlock.needs("i18n")
-class AEToolXBlock(XBlock):
+class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
     """
     Provide embeded iframe to each of AE Tool available on platform or custom url.
     This plugin provides course / block infomation along with url to locate the usage.
@@ -142,7 +144,7 @@ class AEToolXBlock(XBlock):
             "/templates/student.html",
             context={
                 **self._get_context_for_template(),
-                **{'view': 'author'}
+                **{'view': 'studio'}
             },
             i18n_service=self.runtime.service(self, "i18n"),
         ))
