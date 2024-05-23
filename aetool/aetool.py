@@ -128,7 +128,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         help="Element display option",
         scope=Scope.settings
     )
-    editable_fields = ('display_name', 'aetool', 'aetool_config', 'btn_text', 'width', 'height', 'display')
+    editable_fields = ('display_name', 'aetool', 'aetool_config', 'iframe_url', 'btn_text', 'width', 'height', 'display')
 
     @property
     def icon_class(self):
@@ -205,7 +205,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         The primary view of the AEToolXBlock, shown to students
         when viewing courses.
         """
-        # return self.studio2_view(context)
+        # return self.studio_view(context)
         frag = Fragment()
         frag.add_content(ResourceLoader(__name__).render_django_template(
             "/templates/student.html",

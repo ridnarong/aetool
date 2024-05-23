@@ -304,15 +304,18 @@ function AEToolXBlockStudio(runtime, element) {
               field.removeEditor();
           }
       }
-      if (values['aetool'] === 'iframe') {
+      const aetoolEle = $(element).find('#xb-field-edit-aetool');
+      const $aetool = $(aetoolEle);
+      if ($aetool.val() === 'iframe') {
         values['iframe_url'] = values['aetool_config']['iframe_url']
-      } else if (values['aetool'] === 'simulator') {
+      } else if ($aetool.val() === 'simulator') {
         values['iframe_url'] = 'https://ae-custom-question.learning.app.meca.in.th/simulator'
-      } else if (values['aetool'] === 'chatbot') {
+      } else if ($aetool.val() === 'chatbot') {
         values['iframe_url'] = 'https://abdul.in.th/chat/adaptive/?msg=แบบทดสอบกิจกรรมที่ 1'
-      } else if (values['aetool'] === 'bookroll') {
+      } else if ($aetool.val() === 'bookroll') {
         values['iframe_url'] = 'https://ae-ui.pages.dev/pdf.html'
       }
+      // console.log(values)
       studio_submit({values: values, defaults: notSet});
   });
 
@@ -366,4 +369,7 @@ function AEToolXBlockStudio(runtime, element) {
       ff.hide()
     }
   }
+  $(element).find(`[data-field-name='iframe_url']`).each(function () {
+    $(this).hide()
+  })
 }
