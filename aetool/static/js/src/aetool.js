@@ -311,7 +311,7 @@ function AEToolXBlockStudio(runtime, element) {
       } else if (values['aetool'] === 'chatbot') {
         values['iframe_url'] = 'https://abdul.in.th/chat/adaptive/?msg=แบบทดสอบกิจกรรมที่ 1'
       } else if (values['aetool'] === 'bookroll') {
-        values['iframe_url'] = 'https://ae-ui.pages.dev/pdf'
+        values['iframe_url'] = 'https://ae-ui.pages.dev/pdf.html'
       }
       studio_submit({values: values, defaults: notSet});
   });
