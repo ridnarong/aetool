@@ -3,7 +3,7 @@
 import pkg_resources
 from web_fragments.fragment import Fragment
 from xblock.core import XBlock
-from xblock.fields import String, Integer, Scope
+from xblock.fields import String, Integer, Scope, JSONField
 try:
     from xblock.utils.resources import ResourceLoader
     from xblock.utils.studio_editable import StudioEditableXBlockMixin
@@ -41,16 +41,67 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         help="Select AE Tool",
         scope=Scope.settings
     )
-    btn_text = String(
-        display_name="Button text",
-        default='Button',
-        help="Button text",
-        scope=Scope.settings
+    aetool_config = JSONField(
+        display_name ="AE Tool Additional Configuration",
+        default={},
+        values=[
+            {
+                'display_name': 'simulator',
+                'value': None
+            },
+            {
+                'display_name': 'chatbot',
+                'value': {
+                    'sheet_id': {
+                        'type': 'string',
+                        'label': 'Google sheet - ID/URL',
+                        'help': 'Enter Google sheet URL'
+                    },
+                    'sheet_name': {
+                        'type': 'string',
+                        'label': 'Google sheet - Sheet name',
+                        'help': 'Enter Google sheet - Sheet name used for this block'
+                    },
+                    'train': {
+                        'type': 'button',
+                        'handler': 'abdulTrainHandler',
+                        'label': 'Train',
+                        'help': 'Train Chatbot each time for making change of questions'
+                    },
+                }
+            },
+            {
+                'display_name': 'bookroll',
+                'value': {
+                    'pdf_file': {
+                        'type': 'file',
+                        'label': 'Upload file',
+                        'help': 'Upload PDF file'
+                    }
+                }
+            },
+            {
+                'display_name': 'iframe',
+                'value': {
+                'iframe_url': {
+                    'type': 'string',
+                    'label': 'IFrame URL',
+                    'help': 'URL of external resources'
+                }
+            }
+            },
+        ]
     )
     iframe_url = String(
         display_name="IFrame URL",
         default='',
         help="IFrame URL display in modal",
+        scope=Scope.settings
+    )
+    btn_text = String(
+        display_name="Button text",
+        default='Button',
+        help="Button text",
         scope=Scope.settings
     )
     width = String(
@@ -77,7 +128,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         help="Element display option",
         scope=Scope.settings
     )
-    editable_fields = ('display_name', 'aetool', 'btn_text', 'iframe_url', 'width', 'height', 'display')
+    editable_fields = ('display_name', 'aetool', 'aetool_config', 'btn_text', 'width', 'height', 'display')
 
     @property
     def icon_class(self):
@@ -109,6 +160,8 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
             'display': self.display,
             'btn_text': self.btn_text,
             'iframe_url': self.iframe_url,
+            'aetool': self.aetool,
+            'aetool_config': self.aetool_config,
             'width': self.width,
             'height': self.height,
             'display_name': self.display_name
@@ -120,11 +173,39 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         data = pkg_resources.resource_string(__name__, path)
         return data.decode("utf8")
 
+    def studio_view(self, context):
+        """
+        Render a form for editing this XBlock
+        """
+        fragment = Fragment()
+        context = {'fields': []}
+        # Build a list of all the fields that can be edited:
+        for field_name in self.editable_fields:
+            field = self.fields[field_name]
+            assert field.scope in (Scope.content, Scope.settings), (
+                "Only Scope.content or Scope.settings fields can be used with "
+                "StudioEditableXBlockMixin. Other scopes are for user-specific data and are "
+                "not generally created/configured by content authors in Studio."
+            )
+            field_info = self._make_field_info(field_name, field)
+            if field_info is not None:
+                context["fields"].append(field_info)
+        frag = Fragment()
+        frag.add_content(ResourceLoader(__name__).render_django_template(
+            "/templates/studio_edit.html",
+            context=context,
+            i18n_service=self.runtime.service(self, "i18n"),
+        ))
+        frag.add_javascript(self.resource_string("static/js/src/aetool.js"))
+        frag.initialize_js('AEToolXBlockStudio')
+        return frag
+
     def student_view(self, context=None):
         """
         The primary view of the AEToolXBlock, shown to students
         when viewing courses.
         """
+        return self.studio2_view(context)
         frag = Fragment()
         frag.add_content(ResourceLoader(__name__).render_django_template(
             "/templates/student.html",
