@@ -38,34 +38,41 @@
                       <ul>
                         {% for k,f in option.value.items %}
                           <li>
+                            <p>{{ f|safe }}</p>
                             {% if f.type == "string" %}
                               <div class="wrapper-comp-setting">
                                 <label class="label setting-label" for="xb-field-edit-{{k}}">{{f.label}}</label>
-                                  <input
-                                    type="text"
-                                    id="xb-field-edit-{{k}}"
-                                    data-aetool-config-name="{{ option.display_name }}"
-                                    data-aetool-config-field-name="{{k}}"
-                                    class="field-aetool-config-control"
-                                    value="{{f.value|default_if_none:""}}"
-                                  >
+                                  {% for kk,vv in field.value.items %}
+                                    {% if kk == k %}
+                                      <input
+                                        type="text"
+                                        id="xb-field-edit-{{k}}"
+                                        data-aetool-config-name="{{ option.display_name }}"
+                                        data-aetool-config-field-name="{{k}}"
+                                        class="field-aetool-config-control"
+                                        value="{{vv|default_if_none:""}}"
+                                      >
+                                    {% endif %}
                                   {% if field.help %}
-                                    <span class="tip setting-help"> {{ f.help|safe }} </span>
+                                    <span class="tip setting-help"> {{ field.help|safe }} </span>
                                   {% endif %}
                               </div>
                             {% elif f.type == "file" %}
                               <div class="wrapper-comp-setting">
                                 <label class="label setting-label" for="xb-field-edit-{{k}}">{{f.label}}</label>
-                                  <input
-                                    type="file"
-                                    id="xb-field-edit-{{k}}"
-                                    data-aetool-config-name="{{ option.display_name }}"
-                                    data-aetool-config-field-name="{{k}}"
-                                    class="field-aetool-config-control"
-                                    value="{{f.value|default_if_none:""}}"
-                                  >
+                                  {% for kk,vv in field.value.items %}
+                                    {% if kk == k %}
+                                      <input
+                                        type="file"
+                                        id="xb-field-edit-{{k}}"
+                                        data-aetool-config-name="{{ option.display_name }}"
+                                        data-aetool-config-field-name="{{k}}"
+                                        class="field-aetool-config-control"
+                                        value="{{vv|default_if_none:""}}"
+                                      >
+                                    {% endif %}
                                   {% if field.help %}
-                                    <span class="tip setting-help"> {{ f.help|safe }} </span>
+                                    <span class="tip setting-help"> {{ field.help|safe }} </span>
                                   {% endif %}
                               </div>
                             {% elif f.type == "button" %}
