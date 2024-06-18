@@ -62,6 +62,8 @@
                               <div class="wrapper-comp-setting">
                                 <label class="label setting-label" for="xb-field-edit-{{k}}">{{f.label}}</label>
                                   {% for kk,vv in field.value.items %}
+                                    <p>{{ kk|safe }}</p>
+                                    <p>{{ vv|safe }}</p>
                                     {% if kk == k %}
                                       <input
                                         type="file"
