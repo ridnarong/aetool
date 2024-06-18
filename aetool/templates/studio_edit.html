@@ -53,6 +53,7 @@
                                         value="{{vv|default_if_none:""}}"
                                       >
                                     {% endif %}
+                                  {% endfor %}
                                   {% if field.help %}
                                     <span class="tip setting-help"> {{ field.help|safe }} </span>
                                   {% endif %}
@@ -71,6 +72,7 @@
                                         value="{{vv|default_if_none:""}}"
                                       >
                                     {% endif %}
+                                  {% endfor %}
                                   {% if field.help %}
                                     <span class="tip setting-help"> {{ field.help|safe }} </span>
                                   {% endif %}
