@@ -25,11 +25,12 @@
                 </option>
               </select>
             {% elif field.type == 'generic' and field.name == 'aetool_config' and field.has_values %}
+              {{ field.value|json_script:"aetool-config-data" }}
               <input
                 type="hidden" 
                 class="field-data-control"
                 id="xb-field-edit-{{field.name}}"
-                value="{{field.value|default_if_none:""}}"
+                data-usage-id="{{usage_id}}"
               />
               <ul>
                 {% for option in field.values %}
@@ -38,51 +39,49 @@
                       <ul>
                         {% for k,f in option.value.items %}
                           <li>
-                            <p>{{ f|safe }}</p>
                             {% if f.type == "string" %}
                               <div class="wrapper-comp-setting">
                                 <label class="label setting-label" for="xb-field-edit-{{k}}">{{f.label}}</label>
-                                  {% for kk,vv in field.value.items %}
-                                    <p>{{ kk|safe }}</p>
-                                    <p>{{ vv|safe }}</p>
-                                    {% if kk == k %}
-                                      <input
-                                        type="text"
-                                        id="xb-field-edit-{{k}}"
-                                        data-aetool-config-name="{{ option.display_name }}"
-                                        data-aetool-config-field-name="{{k}}"
-                                        class="field-aetool-config-control"
-                                        value="{{vv|default_if_none:""}}"
-                                      >
-                                    {% endif %}
-                                  {% endfor %}
-                                  {% if field.help %}
-                                    <span class="tip setting-help"> {{ field.help|safe }} </span>
+                                  <input
+                                    type="text"
+                                    id="xb-field-edit-{{k}}"
+                                    data-aetool-config-name="{{ option.display_name }}"
+                                    data-aetool-config-field-name="{{k}}"
+                                    class="field-aetool-config-control"
+                                  >
+                                  {% if f.help %}
+                                    <span class="tip setting-help"> {{ f.help|safe }} </span>
                                   {% endif %}
                               </div>
                             {% elif f.type == "file" %}
                               <div class="wrapper-comp-setting">
                                 <label class="label setting-label" for="xb-field-edit-{{k}}">{{f.label}}</label>
-                                  {% for kk,vv in field.value.items %}
-                                    <p>{{ kk|safe }}</p>
-                                    <p>{{ vv|safe }}</p>
-                                    {% if kk == k %}
-                                      <input
-                                        type="file"
-                                        id="xb-field-edit-{{k}}"
-                                        data-aetool-config-name="{{ option.display_name }}"
-                                        data-aetool-config-field-name="{{k}}"
-                                        class="field-aetool-config-control"
-                                        value="{{vv|default_if_none:""}}"
-                                      >
+                                  <input
+                                    type="hidden"
+                                    id="xb-field-edit-{{k}}"
+                                    data-aetool-config-name="{{ option.display_name }}"
+                                    data-aetool-config-field-name="{{k}}"
+                                    class="field-aetool-config-control"
+                                  >
+                                  <input
+                                    type="file"
+                                    id="xb-field-file-{{k}}"
+                                    data-aetool-config-name="{{ option.display_name }}"
+                                    data-aetool-config-field-name="{{k}}"
+                                    class="field-aetool-file-control"
+                                    accept="{{f.accept}}"
+                                    {% if f.multiple %}
+                                    multiple
                                     {% endif %}
-                                  {% endfor %}
-                                  {% if field.help %}
-                                    <span class="tip setting-help"> {{ field.help|safe }} </span>
+                                  >
+                                  <div id="aetool-{{k}}-wrapper" class="aetool-val-wrapper">
+                                  </div>
+                                  {% if f.help %}
+                                    <span class="tip setting-help"> {{ f.help|safe }} </span>
                                   {% endif %}
                               </div>
                             {% elif f.type == "button" %}
-                              <button>
+                              <button id="xb-field-button-{{k}}">
                                 {{f.label}}
                               </button>
                             {% endif %}

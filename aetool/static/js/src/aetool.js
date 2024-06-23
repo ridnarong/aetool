@@ -334,10 +334,136 @@ function AEToolXBlockStudio(runtime, element) {
 
 
   const aetoolEle = $(element).find('#xb-field-edit-aetool');
-  const aetoolConfigEle = $(element).find(`.field-aetool-config-control`);
+  const aetoolConfigEles = $(element).find(`.field-aetool-config-control`);
   const aetoolFieldEles = $(element).find(`.aetool-config-field`);
+  const aetoolFileEles = $(element).find('.field-aetool-file-control');
+  const aetoolValEles = $(element).find(`.aetool-val-wrapper`);
+  const aetoolFieldEle = $(document.getElementById('xb-field-edit-aetool_config'));
+  aetoolFieldEle.val(document.getElementById('aetool-config-data').textContent)
+  const aetoolVal = JSON.parse(aetoolFieldEle.val());
+  const handlerUrl = runtime.handlerUrl(element, `${$(aetoolEle).val()}_init`);
+  const urls = handlerUrl.split('/');
+  const courseId = 'Demo+DEMO102+2023_TT1';//urls[2].split('@')[0].split(':')[1] ? urls[2].split('@')[0].split(':')[1].replace('+type', '') : urls[2].split('@')[0].split(':')[0];
+  const blockId = 'dfcf26662f2f4b4485b13ac76de28959';//uurls[2].split('@')[2] ? urls[2].split('@')[2] : urls[2].split('@')[0].split(':')[0]
+  for (const f of aetoolConfigEles) {
+    if (aetoolVal[$(f).data('aetool-config-field-name')]) {
+      $(f).val(aetoolVal[$(f).data('aetool-config-field-name')])
+    }
+  }
+
+  const fieldInitHandler = (result) => {
+    if ($(aetoolEle).val() === 'bookroll') {
+      const handlerUrl = runtime.handlerUrl(element, `bookroll_delete`);
+      $('#aetool-pdf_file-wrapper').empty()
+      if (result.length > 0) {
+        $(element).find(`#xb-field-file-bookroll`).hide()
+        const ul = document.createElement("ul");
+        for (const r of result) {
+          const a = document.createElement("a");
+          a.innerText = r.title;
+          a.setAttribute("href", `https://bookroll.learning.app.meca.in.th/vue/${r.viewerUrl}/1/en`);
+          const li = document.createElement("li");
+          li.appendChild(a)
+          const button = document.createElement("button");
+          button.addEventListener('click', () => $.ajax({
+            type: "POST",
+            url: handlerUrl,
+            contentType : 'application/json',
+            data: JSON.stringify({contentId: r.contentsId}),
+            success: () => {
+              $.ajax({
+                type: "POST",
+                url: runtime.handlerUrl(element, `bookroll_init`),
+                contentType : 'application/json',
+                data: JSON.stringify({courseId, blockId}),
+                success: fieldInitHandler
+              });
+            }
+          }))
+          button.innerHTML = 'x'
+          li.appendChild(button)
+          ul.appendChild(li)
+        }
+        $('#aetool-pdf_file-wrapper').append(ul)
+      }
+    }
+  }
+
+  $.ajax({
+    type: "POST",
+    url: handlerUrl,
+    contentType : 'application/json',
+    data: JSON.stringify({courseId, blockId}),
+    success: fieldInitHandler
+  });
+  $("#xb-field-button-train").on('click', function () {
+    $.ajax({
+      type: "POST",
+      url: runtime.handlerUrl(element, `chatbot_train`),
+      contentType : 'application/json',
+      data: JSON.stringify({
+        sheetId: $("#xb-field-edit-sheet_id").val(),
+        sheetName: $("#xb-field-edit-sheet_name").val()
+      }),
+      success: (r) => {
+        $('#xb-field-edit-iframe_url').val(`https://dev.abdul.in.th/lite/core/api/v1/edubot-chat?courseid=${courseId}&text=${blockId}:0001`)
+      }
+    });
+  })
+  aetoolFileEles.on('change', function () {
+    const handlerUrl = runtime.handlerUrl(element, `bookroll_handler`);
+    const data = new FormData();
+    for (const file of this.files) {
+      data.append('file', file);
+    }
+    $.ajax({
+      type: "POST",
+      url: handlerUrl,
+      data: data,
+      cache: false,
+      contentType: false,
+      processData: false,
+      success: (r) => {
+        const a = document.createElement("a");
+        a.innerText = r.body.title;
+        a.setAttribute("href", `https://bookroll.learning.app.meca.in.th/vue/${r.body.viewerUrl}/1/en`);
+        const ul = document.createElement("ul");
+        const li = document.createElement("li");
+        li.appendChild(a)
+        const button = document.createElement("button");
+        button.addEventListener('click', () => $.ajax({
+          type: "POST",
+          url: runtime.handlerUrl(element, `bookroll_delete`),
+          contentType : 'application/json',
+          data: JSON.stringify({contentId: r.body.contentsId}),
+          success: () => {
+            $.ajax({
+              type: "POST",
+              url: runtime.handlerUrl(element, `bookroll_init`),
+              contentType : 'application/json',
+              data: JSON.stringify({courseId, blockId}),
+              success: fieldInitHandler
+            });
+          }
+        }))
+        button.innerHTML = 'x'
+        li.appendChild(button)
+        ul.appendChild(li)
+        $('#aetool-pdf_file-wrapper').append(ul)
+        $('#xb-field-edit-iframe_url').val(`https://bookroll.learning.app.meca.in.th/vue/${r.body.viewerUrl}/1/en`)
+      }
+    })
+  });
   aetoolEle.on('change', function() {
-    const aetoolFieldEle = $(element).find('#xb-field-edit-aetool_config');
+    const handlerUrl = runtime.handlerUrl(element, `${this.value}_init`);
+
+    $.ajax({
+      type: "POST",
+      url: handlerUrl,
+      contentType : 'application/json',
+      data: JSON.stringify({courseId, blockId}),
+      success: fieldInitHandler
+    });
     for (const f of aetoolFieldEles) {
       const ff = $(f)
       if (this.value === ff.data('aetool-config-name')) {
@@ -349,8 +475,7 @@ function AEToolXBlockStudio(runtime, element) {
     aetoolFieldEle.val('{}');
   });
   
-  aetoolConfigEle.on('change', function () {
-    const aetoolFieldEle = $(element).find('#xb-field-edit-aetool_config');
+  aetoolConfigEles.on('change', function () {
     var $wrapper = $(aetoolFieldEle).closest('li');
     const d = JSON.parse(aetoolFieldEle.val());
     if ($(this).data('aetool-config-name') === aetoolEle.val()) {
@@ -369,7 +494,7 @@ function AEToolXBlockStudio(runtime, element) {
       ff.hide()
     }
   }
-  $(element).find(`[data-field-name='iframe_url']`).each(function () {
-    $(this).hide()
-  })
+  // $(element).find(`[data-field-name='iframe_url']`).each(function () {
+  //   $(this).hide()
+  // })
 }

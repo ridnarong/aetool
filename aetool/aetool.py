@@ -4,6 +4,11 @@ import pkg_resources
 from web_fragments.fragment import Fragment
 from xblock.core import XBlock
 from xblock.fields import String, Integer, Scope, JSONField
+from webob import Response
+import json
+import requests
+import time
+
 try:
     from xblock.utils.resources import ResourceLoader
     from xblock.utils.studio_editable import StudioEditableXBlockMixin
@@ -43,7 +48,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
     )
     aetool_config = JSONField(
         display_name ="AE Tool Additional Configuration",
-        default={},
+        default={"sheet_id": "adasf", "sheet_name": "safd"},
         values=[
             {
                 'display_name': 'simulator',
@@ -64,7 +69,6 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
                     },
                     'train': {
                         'type': 'button',
-                        'handler': 'abdulTrainHandler',
                         'label': 'Train',
                         'help': 'Train Chatbot each time for making change of questions'
                     },
@@ -76,7 +80,9 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
                     'pdf_file': {
                         'type': 'file',
                         'label': 'Upload file',
-                        'help': 'Upload PDF file'
+                        'help': 'Upload PDF file',
+                        'accept': 'application/pdf',
+                        'multiple': False,
                     }
                 }
             },
@@ -129,6 +135,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         scope=Scope.settings
     )
     editable_fields = ('display_name', 'aetool', 'aetool_config', 'iframe_url', 'btn_text', 'width', 'height', 'display')
+    token = None
 
     @property
     def icon_class(self):
@@ -178,7 +185,13 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         Render a form for editing this XBlock
         """
         fragment = Fragment()
-        context = {'fields': []}
+        context = {
+            'fields': [],
+            'lms_role': self.lms_role,
+            'user_name': self.lms_user_name,
+            'definition_id': self.scope_ids.def_id,
+            'usage_id': self.scope_ids.usage_id
+        }
         # Build a list of all the fields that can be edited:
         for field_name in self.editable_fields:
             field = self.fields[field_name]
@@ -189,6 +202,8 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
             )
             field_info = self._make_field_info(field_name, field)
             if field_info is not None:
+                if field_info["type"] == 'generic' and field_info["name"] == 'aetool_config' and field_info["has_values"]:
+                    field_info["value"] = json.loads(field_info["value"])
                 context["fields"].append(field_info)
         frag = Fragment()
         frag.add_content(ResourceLoader(__name__).render_django_template(
@@ -205,7 +220,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         The primary view of the AEToolXBlock, shown to students
         when viewing courses.
         """
-        # return self.studio_view(context)
+        return self.studio_view(context)
         frag = Fragment()
         frag.add_content(ResourceLoader(__name__).render_django_template(
             "/templates/student.html",
@@ -234,9 +249,149 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         frag.add_javascript(self.resource_string("static/js/src/aetool.js"))
         frag.initialize_js('AEToolXBlock')
         return frag
-        
     
+    def get_token(self):
+        if self.token and self.token.get('expired_at', 0) > time.time() - 30:
+            return self.token
+        else:
+            try:
+                r = requests.post("https://id.meca.in.th/auth/realms/kidbright/protocol/openid-connect/token", data={
+                    'grant_type': 'client_credentials',
+                    'client_id': 'openedx',
+                    'client_secret': '1d3f1bdd-6c49-4c7c-bf40-d40b3739ab27'
+                })
+                if r.status_code == 200:
+                    t = r.json()
+                    self.token = {**t, **{
+                        'expired_at': time.time() + t.get('expires_in')
+                    }}
+                    return self.token
+            except:
+                pass
+        return None
 
+    
+    @XBlock.json_handler
+    def chatbot_init(self, data, suffix=''):  # pylint: disable=unused-argument
+        courseId = self.scope_ids.usage_id.split('@')[0].split(':')[1].replace('+type', '') if len(self.scope_ids.usage_id.split('@')[0].split(':')) > 1  else self.scope_ids.usage_id.split('@')[0]
+        blockId = self.scope_ids.usage_id.split('@')[2] if len(self.scope_ids.usage_id.split('@')) > 2  else self.scope_ids.usage_id.split('@')[0]
+        try:
+            r = requests.get('https://dev.abdul.in.th/lite/core/api/v1/edubot-knowledge', params={
+                'courseid': courseId,
+                'sectionid': blockId
+            })
+            if r.status_code == 200:
+                return r.json()
+            else:
+                print(r.status_code)
+                print(r.text)
+        except:
+            pass
+        return None
+
+    @XBlock.json_handler
+    def chatbot_train(self, data, suffix=''):  # pylint: disable=unused-argument
+        courseId = self.scope_ids.usage_id.split('@')[0].split(':')[1].replace('+type', '') if len(self.scope_ids.usage_id.split('@')[0].split(':')) > 1  else self.scope_ids.usage_id.split('@')[0]
+        blockId = self.scope_ids.usage_id.split('@')[2] if len(self.scope_ids.usage_id.split('@')) > 2  else self.scope_ids.usage_id.split('@')[0]
+        try:
+            info = requests.get("https://ae-backend.learning.app.meca.in.th/lms/%s/%s" % (
+                courseId, blockId
+            ))
+            if info.status_code == 200:
+                courseInfo = info.json()
+                r = requests.post("https://dev.abdul.in.th/lite/core/api/v1/edubot-knowledge", params={
+                    'courseid': courseId,
+                    'sectionid': blockId,
+                    'coursename': courseInfo.get('courseTitle'),
+                    'sectionname': courseInfo.get('sequentialTitle'),
+                    'sheetid': data['sheetId'],
+                    'name': data['sheetName']
+                })
+                if r.status_code == 200:
+                    return r.json()
+                else:
+                    print(r.status_code)
+                    print(r.text)
+            else:
+                print(info.status_code)
+                print(info.text)
+        except:
+            pass
+        return None
+
+    @XBlock.json_handler
+    def bookroll_init(self, data, suffix=''):  # pylint: disable=unused-argument
+        courseId = self.scope_ids.usage_id.split('@')[0].split(':')[1].replace('+type', '') if len(self.scope_ids.usage_id.split('@')[0].split(':')) > 1  else self.scope_ids.usage_id.split('@')[0]
+        blockId = self.scope_ids.usage_id.split('@')[2] if len(self.scope_ids.usage_id.split('@')) > 2  else self.scope_ids.usage_id.split('@')[0]
+        token = self.get_token()
+        if token:
+            try:
+                r = requests.get("https://bookroll.learning.app.meca.in.th/bookroll/v2/books/%s/%s" % (
+                    courseId, blockId
+                ), headers={
+                    'Authorization': "Bearer %s" % (token.get('access_token'),)
+                })
+                if r.status_code == 200:
+                    return r.json()
+                else:
+                    print(r.status_code)
+                    print(r.text)
+            except:
+                pass
+        return None
+
+    @XBlock.json_handler
+    def bookroll_delete(self, data, suffix=''):  # pylint: disable=unused-argument
+        courseId = self.scope_ids.usage_id.split('@')[0].split(':')[1].replace('+type', '') if len(self.scope_ids.usage_id.split('@')[0].split(':')) > 1  else self.scope_ids.usage_id.split('@')[0]
+        blockId = self.scope_ids.usage_id.split('@')[2] if len(self.scope_ids.usage_id.split('@')) > 2  else self.scope_ids.usage_id.split('@')[0]
+        if 'contentId' in data:
+            token = self.get_token()
+            if token:
+                try:
+                    r = requests.delete("https://bookroll.learning.app.meca.in.th/bookroll/v2/books/%s" % (
+                        data['contentId']
+                    ), headers={
+                        'Authorization': "Bearer %s" % (token.get('access_token'),)
+                    })
+                    if r.status_code == 200:
+                        return r.json()
+                    else:
+                        print(r.status_code)
+                        print(r.text)
+                except:
+                    pass
+        return None
+    
+    @XBlock.handler
+    def bookroll_handler(self, request, suffix=''):  # pylint: disable=unused-argument
+        courseId = self.scope_ids.usage_id.split('@')[0].split(':')[1].replace('+type', '') if len(self.scope_ids.usage_id.split('@')[0].split(':')) > 1  else self.scope_ids.usage_id.split('@')[0]
+        blockId = self.scope_ids.usage_id.split('@')[2] if len(self.scope_ids.usage_id.split('@')) > 2  else self.scope_ids.usage_id.split('@')[0]
+        token = self.get_token()
+        if token:
+            try:
+                r = requests.post("https://bookroll.learning.app.meca.in.th/bookroll/v2/books/%s/%s" % (
+                    courseId, blockId
+                ),
+                files= {'file': request.body_file},
+                headers={
+                    'Authorization': "Bearer %s" % (token.get('access_token'),)
+                })
+                return Response(r.text, content_type='application/json', charset='utf8')
+            except:
+                pass
+        return Response('null', content_type='application/json', charset='utf8')
+    
+    @XBlock.json_handler
+    def iframe_init(self, data, suffix=''):  # pylint: disable=unused-argument
+        courseId = self.scope_ids.usage_id.split('@')[0].split(':')[1].replace('+type', '') if len(self.scope_ids.usage_id.split('@')[0].split(':')) > 1  else self.scope_ids.usage_id.split('@')[0]
+        blockId = self.scope_ids.usage_id.split('@')[2] if len(self.scope_ids.usage_id.split('@')) > 2  else self.scope_ids.usage_id.split('@')[0]
+        return None
+    
+    @XBlock.json_handler
+    def simulator_init(self, data, suffix=''):  # pylint: disable=unused-argument
+        courseId = self.scope_ids.usage_id.split('@')[0].split(':')[1].replace('+type', '') if len(self.scope_ids.usage_id.split('@')[0].split(':')) > 1  else self.scope_ids.usage_id.split('@')[0]
+        blockId = self.scope_ids.usage_id.split('@')[2] if len(self.scope_ids.usage_id.split('@')) > 2  else self.scope_ids.usage_id.split('@')[0]
+        return None
     # TO-DO: change this to create the scenarios you'd like to see in the
     # workbench while developing your XBlock.
     @staticmethod
