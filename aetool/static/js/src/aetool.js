@@ -310,10 +310,6 @@ function AEToolXBlockStudio(runtime, element) {
         values['iframe_url'] = values['aetool_config']['iframe_url']
       } else if ($aetool.val() === 'simulator') {
         values['iframe_url'] = 'https://ae-custom-question.learning.app.meca.in.th/simulator'
-      } else if ($aetool.val() === 'chatbot') {
-        values['iframe_url'] = 'https://abdul.in.th/chat/adaptive/?msg=แบบทดสอบกิจกรรมที่ 1'
-      } else if ($aetool.val() === 'bookroll') {
-        values['iframe_url'] = 'https://ae-ui.pages.dev/pdf.html'
       }
       // console.log(values)
       studio_submit({values: values, defaults: notSet});
@@ -356,7 +352,7 @@ function AEToolXBlockStudio(runtime, element) {
       const handlerUrl = runtime.handlerUrl(element, `bookroll_delete`);
       $('#aetool-pdf_file-wrapper').empty()
       if (result.length > 0) {
-        $(element).find(`#xb-field-file-bookroll`).hide()
+        $(element).find(`#xb-aetool-field-file-bookroll`).hide()
         const ul = document.createElement("ul");
         for (const r of result) {
           const a = document.createElement("a");
@@ -396,14 +392,14 @@ function AEToolXBlockStudio(runtime, element) {
     data: JSON.stringify({courseId, blockId}),
     success: fieldInitHandler
   });
-  $("#xb-field-button-train").on('click', function () {
+  $("#xb-aetool-field-button-train").on('click', function () {
     $.ajax({
       type: "POST",
       url: runtime.handlerUrl(element, `chatbot_train`),
       contentType : 'application/json',
       data: JSON.stringify({
-        sheetId: $("#xb-field-edit-sheet_id").val(),
-        sheetName: $("#xb-field-edit-sheet_name").val()
+        sheetId: $("#xb-aetool-field-edit-sheet_id").val(),
+        sheetName: $("#xb-aetool-field-edit-sheet_name").val()
       }),
       success: (r) => {
         $('#xb-field-edit-iframe_url').val(`https://dev.abdul.in.th/lite/core/api/v1/edubot-chat?courseid=${courseId}&text=${blockId}:0001`)

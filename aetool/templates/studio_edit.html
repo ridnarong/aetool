@@ -44,7 +44,7 @@
                                 <label class="label setting-label" for="xb-field-edit-{{k}}">{{f.label}}</label>
                                   <input
                                     type="text"
-                                    id="xb-field-edit-{{k}}"
+                                    id="xb-aetool-field-edit-{{k}}"
                                     data-aetool-config-name="{{ option.display_name }}"
                                     data-aetool-config-field-name="{{k}}"
                                     class="field-aetool-config-control"
@@ -58,14 +58,14 @@
                                 <label class="label setting-label" for="xb-field-edit-{{k}}">{{f.label}}</label>
                                   <input
                                     type="hidden"
-                                    id="xb-field-edit-{{k}}"
+                                    id="xb-aetool-field-edit-{{k}}"
                                     data-aetool-config-name="{{ option.display_name }}"
                                     data-aetool-config-field-name="{{k}}"
                                     class="field-aetool-config-control"
                                   >
                                   <input
                                     type="file"
-                                    id="xb-field-file-{{k}}"
+                                    id="xb-aetool-field-file-{{k}}"
                                     data-aetool-config-name="{{ option.display_name }}"
                                     data-aetool-config-field-name="{{k}}"
                                     class="field-aetool-file-control"
@@ -81,7 +81,7 @@
                                   {% endif %}
                               </div>
                             {% elif f.type == "button" %}
-                              <button id="xb-field-button-{{k}}">
+                              <button id="xb-aetool-field-button-{{k}}">
                                 {{f.label}}
                               </button>
                             {% endif %}
