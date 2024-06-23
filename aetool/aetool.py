@@ -48,7 +48,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
     )
     aetool_config = JSONField(
         display_name ="AE Tool Additional Configuration",
-        default={"sheet_id": "adasf", "sheet_name": "safd"},
+        default={},
         values=[
             {
                 'display_name': 'simulator',
@@ -173,6 +173,9 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
             'height': self.height,
             'display_name': self.display_name
         }
+    
+    def _uid(self):
+        return str(self.scope_ids.usage_id)
 
 
     def resource_string(self, path):
@@ -220,7 +223,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         The primary view of the AEToolXBlock, shown to students
         when viewing courses.
         """
-        # return self.studio_view(context)
+        return self.studio_view(context)
         frag = Fragment()
         frag.add_content(ResourceLoader(__name__).render_django_template(
             "/templates/student.html",
@@ -273,8 +276,8 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
     
     @XBlock.json_handler
     def chatbot_init(self, data, suffix=''):  # pylint: disable=unused-argument
-        courseId = self.scope_ids.usage_id.split('@')[0].split(':')[1].replace('+type', '') if len(self.scope_ids.usage_id.split('@')[0].split(':')) > 1  else self.scope_ids.usage_id.split('@')[0]
-        blockId = self.scope_ids.usage_id.split('@')[2] if len(self.scope_ids.usage_id.split('@')) > 2  else self.scope_ids.usage_id.split('@')[0]
+        courseId = self._uid.split('@')[0].split(':')[1].replace('+type', '') if len(self._uid.split('@')[0].split(':')) > 1  else self._uid.split('@')[0]
+        blockId = self._uid.split('@')[2] if len(self._uid.split('@')) > 2  else self._uid.split('@')[0]
         try:
             r = requests.get('https://dev.abdul.in.th/lite/core/api/v1/edubot-knowledge', params={
                 'courseid': courseId,
@@ -291,8 +294,8 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
 
     @XBlock.json_handler
     def chatbot_train(self, data, suffix=''):  # pylint: disable=unused-argument
-        courseId = self.scope_ids.usage_id.split('@')[0].split(':')[1].replace('+type', '') if len(self.scope_ids.usage_id.split('@')[0].split(':')) > 1  else self.scope_ids.usage_id.split('@')[0]
-        blockId = self.scope_ids.usage_id.split('@')[2] if len(self.scope_ids.usage_id.split('@')) > 2  else self.scope_ids.usage_id.split('@')[0]
+        courseId = self._uid.split('@')[0].split(':')[1].replace('+type', '') if len(self._uid.split('@')[0].split(':')) > 1  else self._uid.split('@')[0]
+        blockId = self._uid.split('@')[2] if len(self._uid.split('@')) > 2  else self._uid.split('@')[0]
         try:
             info = requests.get("https://ae-backend.learning.app.meca.in.th/lms/%s/%s" % (
                 courseId, blockId
@@ -321,8 +324,8 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
 
     @XBlock.json_handler
     def bookroll_init(self, data, suffix=''):  # pylint: disable=unused-argument
-        courseId = self.scope_ids.usage_id.split('@')[0].split(':')[1].replace('+type', '') if len(self.scope_ids.usage_id.split('@')[0].split(':')) > 1  else self.scope_ids.usage_id.split('@')[0]
-        blockId = self.scope_ids.usage_id.split('@')[2] if len(self.scope_ids.usage_id.split('@')) > 2  else self.scope_ids.usage_id.split('@')[0]
+        courseId = self._uid.split('@')[0].split(':')[1].replace('+type', '') if len(self._uid.split('@')[0].split(':')) > 1  else self._uid.split('@')[0]
+        blockId = self._uid.split('@')[2] if len(self._uid.split('@')) > 2  else self._uid.split('@')[0]
         token = self.get_token()
         if token:
             try:
@@ -342,8 +345,8 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
 
     @XBlock.json_handler
     def bookroll_delete(self, data, suffix=''):  # pylint: disable=unused-argument
-        courseId = self.scope_ids.usage_id.split('@')[0].split(':')[1].replace('+type', '') if len(self.scope_ids.usage_id.split('@')[0].split(':')) > 1  else self.scope_ids.usage_id.split('@')[0]
-        blockId = self.scope_ids.usage_id.split('@')[2] if len(self.scope_ids.usage_id.split('@')) > 2  else self.scope_ids.usage_id.split('@')[0]
+        courseId = self._uid.split('@')[0].split(':')[1].replace('+type', '') if len(self._uid.split('@')[0].split(':')) > 1  else self._uid.split('@')[0]
+        blockId = self._uid.split('@')[2] if len(self._uid.split('@')) > 2  else self._uid.split('@')[0]
         if 'contentId' in data:
             token = self.get_token()
             if token:
@@ -364,8 +367,8 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
     
     @XBlock.handler
     def bookroll_handler(self, request, suffix=''):  # pylint: disable=unused-argument
-        courseId = self.scope_ids.usage_id.split('@')[0].split(':')[1].replace('+type', '') if len(self.scope_ids.usage_id.split('@')[0].split(':')) > 1  else self.scope_ids.usage_id.split('@')[0]
-        blockId = self.scope_ids.usage_id.split('@')[2] if len(self.scope_ids.usage_id.split('@')) > 2  else self.scope_ids.usage_id.split('@')[0]
+        courseId = self._uid.split('@')[0].split(':')[1].replace('+type', '') if len(self._uid.split('@')[0].split(':')) > 1  else self._uid.split('@')[0]
+        blockId = self._uid.split('@')[2] if len(self._uid.split('@')) > 2  else self._uid.split('@')[0]
         token = self.get_token()
         if token:
             try:
@@ -383,14 +386,14 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
     
     @XBlock.json_handler
     def iframe_init(self, data, suffix=''):  # pylint: disable=unused-argument
-        courseId = self.scope_ids.usage_id.split('@')[0].split(':')[1].replace('+type', '') if len(self.scope_ids.usage_id.split('@')[0].split(':')) > 1  else self.scope_ids.usage_id.split('@')[0]
-        blockId = self.scope_ids.usage_id.split('@')[2] if len(self.scope_ids.usage_id.split('@')) > 2  else self.scope_ids.usage_id.split('@')[0]
+        courseId = self._uid.split('@')[0].split(':')[1].replace('+type', '') if len(self._uid.split('@')[0].split(':')) > 1  else self._uid.split('@')[0]
+        blockId = self._uid.split('@')[2] if len(self._uid.split('@')) > 2  else self._uid.split('@')[0]
         return None
     
     @XBlock.json_handler
     def simulator_init(self, data, suffix=''):  # pylint: disable=unused-argument
-        courseId = self.scope_ids.usage_id.split('@')[0].split(':')[1].replace('+type', '') if len(self.scope_ids.usage_id.split('@')[0].split(':')) > 1  else self.scope_ids.usage_id.split('@')[0]
-        blockId = self.scope_ids.usage_id.split('@')[2] if len(self.scope_ids.usage_id.split('@')) > 2  else self.scope_ids.usage_id.split('@')[0]
+        courseId = self._uid.split('@')[0].split(':')[1].replace('+type', '') if len(self._uid.split('@')[0].split(':')) > 1  else self._uid.split('@')[0]
+        blockId = self._uid.split('@')[2] if len(self._uid.split('@')) > 2  else self._uid.split('@')[0]
         return None
     # TO-DO: change this to create the scenarios you'd like to see in the
     # workbench while developing your XBlock.
