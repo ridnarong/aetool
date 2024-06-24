@@ -302,6 +302,14 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
             ))
             if info.status_code == 200:
                 courseInfo = info.json()
+                print({
+                    'courseid': courseId,
+                    'sectionid': blockId,
+                    'coursename': courseInfo.get('courseTitle'),
+                    'sectionname': courseInfo.get('sequentialTitle'),
+                    'sheetid': data['sheetId'],
+                    'name': data['sheetName']
+                })
                 r = requests.post("https://dev.abdul.in.th/lite/core/api/v1/edubot-knowledge", params={
                     'courseid': courseId,
                     'sectionid': blockId,
