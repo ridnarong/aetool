@@ -404,6 +404,10 @@ function AEToolXBlockStudio(runtime, element) {
       success: (r) => {
         const msg = encodeURIComponent(`${(r || {}).courseid || ''}|${(r || {}).sectionid || ''}`)
         $('#xb-field-edit-iframe_url').val(`https://abdul.in.th/chat/adaptive/?msg=${msg}`)
+        const $wrapper = $('#xb-field-edit-iframe_url').closest('li');
+        const $resetButton = $('#xb-field-edit-iframe_url').find('button.setting-clear');
+        $wrapper.addClass('is-set');
+        $resetButton.removeClass('inactive').addClass('active');
       }
     });
   })
@@ -448,6 +452,10 @@ function AEToolXBlockStudio(runtime, element) {
         ul.appendChild(li)
         $('#aetool-pdf_file-wrapper').append(ul)
         $('#xb-field-edit-iframe_url').val(`https://bookroll.learning.app.meca.in.th/vue/${r.body.viewerUrl}/1/en`)
+        const $wrapper = $('#xb-field-edit-iframe_url').closest('li');
+        const $resetButton = $('#xb-field-edit-iframe_url').find('button.setting-clear');
+        $wrapper.addClass('is-set');
+        $resetButton.removeClass('inactive').addClass('active');
       }
     })
   });
