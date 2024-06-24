@@ -223,7 +223,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         The primary view of the AEToolXBlock, shown to students
         when viewing courses.
         """
-        # return self.studio_view(context)
+        return self.studio_view(context)
         frag = Fragment()
         frag.add_content(ResourceLoader(__name__).render_django_template(
             "/templates/student.html",
@@ -375,7 +375,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
                 r = requests.post("https://bookroll.learning.app.meca.in.th/bookroll/v2/books/%s/%s" % (
                     courseId, blockId
                 ),
-                files= {'file': request.body_file},
+                files=request.body_file.FILES,
                 headers={
                     'Authorization': "Bearer %s" % (token.get('access_token'),)
                 })

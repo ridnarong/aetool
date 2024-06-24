@@ -339,8 +339,8 @@ function AEToolXBlockStudio(runtime, element) {
   const aetoolVal = JSON.parse(aetoolFieldEle.val());
   const handlerUrl = runtime.handlerUrl(element, `${$(aetoolEle).val()}_init`);
   const urls = handlerUrl.split('/');
-  const courseId = 'Demo+DEMO102+2023_TT1';//urls[2].split('@')[0].split(':')[1] ? urls[2].split('@')[0].split(':')[1].replace('+type', '') : urls[2].split('@')[0].split(':')[0];
-  const blockId = 'dfcf26662f2f4b4485b13ac76de28959';//uurls[2].split('@')[2] ? urls[2].split('@')[2] : urls[2].split('@')[0].split(':')[0]
+  const courseId = urls[2].split('@')[0].split(':')[1] ? urls[2].split('@')[0].split(':')[1].replace('+type', '') : urls[2].split('@')[0].split(':')[0];
+  const blockId = urls[2].split('@')[2] ? urls[2].split('@')[2] : urls[2].split('@')[0].split(':')[0]
   for (const f of aetoolConfigEles) {
     if (aetoolVal[$(f).data('aetool-config-field-name')]) {
       $(f).val(aetoolVal[$(f).data('aetool-config-field-name')])
@@ -402,7 +402,8 @@ function AEToolXBlockStudio(runtime, element) {
         sheetName: $("#xb-aetool-field-edit-sheet_name").val()
       }),
       success: (r) => {
-        $('#xb-field-edit-iframe_url').val(`https://dev.abdul.in.th/lite/core/api/v1/edubot-chat?courseid=${courseId}&text=${blockId}:0001`)
+        const msg = encodeURIComponent(`${(r || {}).courseid || ''}|${(r || {}).sectionid || ''}`)
+        $('#xb-field-edit-iframe_url').val(`https://abdul.in.th/chat/adaptive/?msg=${msg}`)
       }
     });
   })
