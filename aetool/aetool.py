@@ -297,6 +297,8 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         courseId = self._uid().split('@')[0].split(':')[1].replace('+type', '') if len(self._uid().split('@')[0].split(':')) > 1  else self._uid().split('@')[0]
         blockId = self._uid().split('@')[2] if len(self._uid().split('@')) > 2  else self._uid().split('@')[0]
         try:
+            print(courseId)
+            print(blockId)
             info = requests.get("http://ae-backend.learning/lms/%s/%s" % (
                 courseId, blockId
             ))
