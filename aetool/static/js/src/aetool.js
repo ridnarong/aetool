@@ -14,7 +14,7 @@ function AEToolXBlock(runtime, element) {
         title: wrapper.data('title'),
         name: `iframe-${wrapper.data('target')}`,
         id: `iframe-${wrapper.data('target')}`,
-        src: `${wrapper.data('iframe-url')}?${params.join('&')}` ,
+        src: `${wrapper.data('iframe-url')}${wrapper.data('iframe-url').includes('?') ? '&' : '?'}${params.join('&')}` ,
         allowfullscreen: "true",
         webkitallowfullscreen: "true",
         mozallowfullscreen: "true",
@@ -44,7 +44,7 @@ function AEToolXBlock(runtime, element) {
             {
                 'type': 'plugin.modal',
                 'payload': {
-                    'url': `${wrapper.data('iframe-url')}?${params.join('&')}`,
+                    'url': `${wrapper.data('iframe-url')}${wrapper.data('iframe-url').includes('?') ? '&' : '?'}${params.join('&')}`,
                     'title': wrapper.data('title'),
                     'width': wrapper.data('width')
                 }
