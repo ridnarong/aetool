@@ -321,11 +321,14 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
                     'name': data['sheetName']
                 })
                 if r.status_code == 200:
+                    print(r.json())
                     return r.json()
                 else:
+                    print("train")
                     print(r.status_code)
                     print(r.text)
             else:
+                print("info")
                 print(info.status_code)
                 print(info.text)
         except:
