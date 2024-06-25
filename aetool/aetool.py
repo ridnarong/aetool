@@ -297,7 +297,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         courseId = self._uid().split('@')[0].split(':')[1].replace('+type', '') if len(self._uid().split('@')[0].split(':')) > 1  else self._uid().split('@')[0]
         blockId = self._uid().split('@')[2] if len(self._uid().split('@')) > 2  else self._uid().split('@')[0]
         try:
-            info = requests.get("https://ae-backend.learning.app.meca.in.th/lms/%s/%s" % (
+            info = requests.get("http://ae-backend.learning/lms/%s/%s" % (
                 courseId, blockId
             ))
             if info.status_code == 200:
