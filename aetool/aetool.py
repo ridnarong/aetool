@@ -5,6 +5,7 @@ from web_fragments.fragment import Fragment
 from xblock.core import XBlock
 from xblock.fields import String, Integer, Scope, JSONField
 from webob import Response
+import urllib.parse
 import json
 import requests
 import time
@@ -296,43 +297,34 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
     def chatbot_train(self, data, suffix=''):  # pylint: disable=unused-argument
         courseId = self._uid().split('@')[0].split(':')[1].replace('+type', '') if len(self._uid().split('@')[0].split(':')) > 1  else self._uid().split('@')[0]
         blockId = self._uid().split('@')[2] if len(self._uid().split('@')) > 2  else self._uid().split('@')[0]
-        try:
-            print(courseId)
-            print(blockId)
-            info = requests.get("http://ae-backend.learning/lms/%s/%s" % (
-                courseId, blockId
-            ))
-            if info.status_code == 200:
+        courseName = ""
+        sectionName = ""
+        info = requests.get("http://ae-backend.learning/lms/%s/%s" % (
+            urllib.parse.quote_plus(courseId), urllib.parse.quote_plus(blockId)
+        ))
+        if info.status_code == 200:
+            courseInfo = {}
+            try:
                 courseInfo = info.json()
-                print({
-                    'courseid': courseId,
-                    'sectionid': blockId,
-                    'coursename': courseInfo.get('courseTitle'),
-                    'sectionname': courseInfo.get('sequentialTitle'),
-                    'sheetid': data['sheetId'],
-                    'name': data['sheetName']
-                })
-                r = requests.post("https://dev.abdul.in.th/lite/core/api/v1/edubot-knowledge", params={
-                    'courseid': courseId,
-                    'sectionid': blockId,
-                    'coursename': courseInfo.get('courseTitle'),
-                    'sectionname': courseInfo.get('sequentialTitle'),
-                    'sheetid': data['sheetId'],
-                    'name': data['sheetName']
-                })
-                if r.status_code == 200:
-                    print(r.json())
-                    return r.json()
-                else:
-                    print("train")
-                    print(r.status_code)
-                    print(r.text)
-            else:
-                print("info")
-                print(info.status_code)
+                courseName = courseInfo.get('courseTitle')
+                sectionName = courseInfo.get('sequentialTitle')
+            except:
                 print(info.text)
-        except:
-            pass
+            r = requests.post("https://dev.abdul.in.th/lite/core/api/v1/edubot-knowledge", params={
+                'courseid': courseId,
+                'sectionid': blockId,
+                'coursename': courseName,
+                'sectionname': sectionName,
+                'sheetid': data['sheetId'],
+                'name': data['sheetName']
+            })
+            if r.status_code == 200:
+                print(r.json())
+                return r.json()
+            else:
+                print("train")
+                print(r.status_code)
+                print(r.text)
         return None
 
     @XBlock.json_handler
