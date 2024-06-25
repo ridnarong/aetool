@@ -402,7 +402,7 @@ function AEToolXBlockStudio(runtime, element) {
         sheetName: $("#xb-aetool-field-edit-sheet_name").val()
       }),
       success: (r) => {
-        const msg = encodeURIComponent(`${(r || {}).courseid || ''}|${(r || {}).sectionid || ''}`)
+        const msg = encodeURIComponent(`${(r || {}).courseid || ''},${(r || {}).sectionid || ''}`)
         $('#xb-field-edit-iframe_url').val(`https://abdul.in.th/chat/adaptive/?msg=${msg}`)
         const $wrapper = $('#xb-field-edit-iframe_url').closest('li');
         const $resetButton = $('#xb-field-edit-iframe_url').find('button.setting-clear');
