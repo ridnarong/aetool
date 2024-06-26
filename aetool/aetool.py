@@ -310,7 +310,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
                 sectionName = courseInfo.get('sequentialTitle')
             except:
                 print(info.text)
-            r = requests.post("https://dev.abdul.in.th/lite/core/api/v1/edubot-knowledge", params={
+            r = requests.post("https://abdul.in.th/lite/core/api/v1/edubot-knowledge", params={
                 'courseid': courseId,
                 'sectionid': blockId,
                 'coursename': courseName,

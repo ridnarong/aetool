@@ -52,6 +52,8 @@
                                   {% if f.help %}
                                     <span class="tip setting-help"> {{ f.help|safe }} </span>
                                   {% endif %}
+                                  <div id="aetool-{{k}}-wrapper" class="aetool-val-wrapper">
+                                  </div>
                               </div>
                             {% elif f.type == "file" %}
                               <div class="wrapper-comp-setting">
@@ -84,6 +86,8 @@
                               <button id="xb-aetool-field-button-{{k}}">
                                 {{f.label}}
                               </button>
+                              <div id="aetool-{{k}}-wrapper" class="aetool-val-wrapper">
+                              </div>
                             {% endif %}
                           </li>
                         {% endfor %}

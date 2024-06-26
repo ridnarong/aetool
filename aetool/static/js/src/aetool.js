@@ -408,6 +408,9 @@ function AEToolXBlockStudio(runtime, element) {
         const $resetButton = $('#xb-field-edit-iframe_url').find('button.setting-clear');
         $wrapper.addClass('is-set');
         $resetButton.removeClass('inactive').addClass('active');
+        const p =  document.createElement("p");
+        p.innerText = JSON.stringify(r);
+        $('#aetool-train-wrapper').append(p);
       }
     });
   })
