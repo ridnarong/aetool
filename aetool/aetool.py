@@ -225,7 +225,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         The primary view of the AEToolXBlock, shown to students
         when viewing courses.
         """
-        return self.studio_view(context)
+        # return self.studio_view(context)
         frag = Fragment()
         frag.add_content(ResourceLoader(__name__).render_django_template(
             "/templates/student.html",
