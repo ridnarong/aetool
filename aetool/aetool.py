@@ -40,7 +40,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         values=[
             {"value": 'simulator', "display_name": 'Simulator'},
             {"value": 'chatbot', "display_name": 'Chatbot'},
-            {"value": 'bookroll', "display_name": 'Bookroll'},
+            {"value": 'bookroll', "display_name": 'BookRoll'},
             {"value": 'iframe', "display_name": 'External URL'},
         ],
         default='iframe',
@@ -215,6 +215,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
             context=context,
             i18n_service=self.runtime.service(self, "i18n"),
         ))
+        frag.add_css(self.resource_string("static/css/aetool.css"))
         frag.add_javascript(self.resource_string("static/js/src/aetool.js"))
         frag.initialize_js('AEToolXBlockStudio')
         return frag
@@ -224,7 +225,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         The primary view of the AEToolXBlock, shown to students
         when viewing courses.
         """
-        # return self.studio_view(context)
+        return self.studio_view(context)
         frag = Fragment()
         frag.add_content(ResourceLoader(__name__).render_django_template(
             "/templates/student.html",
@@ -280,7 +281,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         courseId = self._uid().split('@')[0].split(':')[1].replace('+type', '') if len(self._uid().split('@')[0].split(':')) > 1  else self._uid().split('@')[0]
         blockId = self._uid().split('@')[2] if len(self._uid().split('@')) > 2  else self._uid().split('@')[0]
         try:
-            r = requests.get('https://dev.abdul.in.th/lite/core/api/v1/edubot-knowledge', params={
+            r = requests.get('https://abdul.in.th/lite/core/api/v1/edubot-knowledge', params={
                 'courseid': courseId,
                 'sectionid': blockId
             })

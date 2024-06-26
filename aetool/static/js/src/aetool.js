@@ -393,6 +393,8 @@ function AEToolXBlockStudio(runtime, element) {
     success: fieldInitHandler
   });
   $("#xb-aetool-field-button-train").on('click', function () {
+    const iconButton = $("#xb-aetool-field-icon-button-train");
+    iconButton.removeClass( "fa-exclamation fa-check fa-circle-o").addClass('fa-spinner spinner')
     $.ajax({
       type: "POST",
       url: runtime.handlerUrl(element, `chatbot_train`),
@@ -409,8 +411,40 @@ function AEToolXBlockStudio(runtime, element) {
         $wrapper.addClass('is-set');
         $resetButton.removeClass('inactive').addClass('active');
         const p =  document.createElement("p");
-        p.innerText = JSON.stringify(r);
+        // p.innerText = JSON.stringify(r);
         $('#aetool-train-wrapper').append(p);
+        if (r.status === 'processing') {
+          iconButton.removeClass( "fa-exclamation fa-check fa-circle-o").addClass('fa-spinner spinner')
+          const checker = new Promise((resolve, reject) => {
+            const checkerRequest = $.ajax({
+              type: "POST",
+              url: runtime.handlerUrl(element, `chatbot_init`),
+              contentType : 'application/json',
+              data: JSON.stringify({
+                sheetId: $("#xb-aetool-field-edit-sheet_id").val(),
+                sheetName: $("#xb-aetool-field-edit-sheet_name").val()
+              }),
+              success: (result) => {
+                if (result.status === 'ready') {
+                  resolve()
+                } if (result.status === 'processing') {
+                  setTimeout(checkerRequest, 1000);
+                } else {
+                  reject()
+                }
+              },
+              error: reject
+            });
+            setTimeout(checkerRequest, 1000);
+          });
+          checker.then(() => iconButton.removeClass( "fa-exclamation fa-circle-o fa-spinner spinner").addClass('fa-check')).catch(
+            () => iconButton.removeClass("fa-check fa-circle-o fa-spinner spinner").addClass('fa-exclamation')
+          );
+        } else if (r.status === 'ready') {
+          iconButton.removeClass( "fa-exclamation fa-circle-o fa-spinner spinner").addClass('fa-check')
+        } else {
+          iconButton.removeClass("fa-check fa-circle-o fa-spinner spinner").addClass('fa-exclamation')
+        }
       }
     });
   })

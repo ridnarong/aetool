@@ -83,8 +83,9 @@
                                   {% endif %}
                               </div>
                             {% elif f.type == "button" %}
-                              <button id="xb-aetool-field-button-{{k}}">
-                                {{f.label}}
+                              <button id="xb-aetool-field-button-{{k}}" class="action">
+                                <span>{{f.label}}</span>
+                                <i id="xb-aetool-field-icon-button-{{k}}" class="icon fa fa-circle-o"></i>
                               </button>
                               <div id="aetool-{{k}}-wrapper" class="aetool-val-wrapper">
                               </div>
