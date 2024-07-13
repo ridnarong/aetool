@@ -24,6 +24,21 @@ function AEToolXBlock(runtime, element) {
         height: wrapper.data('height') || '100%'
       });
       iframe.on('message', console.log);
+      iframe.on('load', () => {
+        console.log({
+          'timestamp': new Date().toISOString(),
+          'logLevel': 6,
+          'appID': wrapper.data('aetool'),
+          'userID': wrapper.data('user-name'),
+          'sessionID': '',
+          'flowID': wrapper.data('usage-id'),
+          'eventCategory': 'lmsEvent',
+          'event': 'visit',
+          'note': null,
+          'customFields': {},
+          'tags': []
+        })
+      })
       return iframe;
     }
   
@@ -401,7 +416,8 @@ function AEToolXBlockStudio(runtime, element) {
       contentType : 'application/json',
       data: JSON.stringify({
         sheetId: $("#xb-aetool-field-edit-sheet_id").val(),
-        sheetName: $("#xb-aetool-field-edit-sheet_name").val()
+        sheetName: $("#xb-aetool-field-edit-sheet_name").val(),
+        type: $("#xb-aetool-field-edit-type").val()
       }),
       success: (r) => {
         const msg = encodeURIComponent(`${(r || {}).courseid || ''},${(r || {}).sectionid || ''}`)

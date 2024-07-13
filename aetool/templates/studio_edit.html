@@ -42,13 +42,26 @@
                             {% if f.type == "string" %}
                               <div class="wrapper-comp-setting">
                                 <label class="label setting-label" for="xb-field-edit-{{k}}">{{f.label}}</label>
-                                  <input
-                                    type="text"
-                                    id="xb-aetool-field-edit-{{k}}"
-                                    data-aetool-config-name="{{ option.display_name }}"
-                                    data-aetool-config-field-name="{{k}}"
-                                    class="field-aetool-config-control"
-                                  >
+                                  {% if f.choices %}
+                                    <select
+                                      class="field-data-control"
+                                      id="xb-aetool-field-edit-{{k}}"
+                                    >
+                                      {% for opt in f.choices %}
+                                      <option value="{{ opt.0 }}">
+                                        {{ opt.1 }}
+                                      </option>
+                                      {% endfor %}
+                                    </select>
+                                  {% else %}
+                                    <input
+                                      type="text"
+                                      id="xb-aetool-field-edit-{{k}}"
+                                      data-aetool-config-name="{{ option.display_name }}"
+                                      data-aetool-config-field-name="{{k}}"
+                                      class="field-aetool-config-control"
+                                    >
+                                  {% endif %}
                                   {% if f.help %}
                                     <span class="tip setting-help"> {{ f.help|safe }} </span>
                                   {% endif %}

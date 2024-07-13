@@ -9,6 +9,7 @@ import urllib.parse
 import json
 import requests
 import time
+from datetime import datetime
 
 try:
     from xblock.utils.resources import ResourceLoader
@@ -67,6 +68,16 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
                         'type': 'string',
                         'label': 'Google sheet - Sheet name',
                         'help': 'Enter Google sheet - Sheet name used for this block'
+                    },
+                    'type': {
+                        'type': 'string',
+                        'label': 'Type',
+                        'help': 'Abdul chatbot type',
+                        'choices': [
+                            ['quiz', 'Quiz'],
+                            ['faq', 'FAQ'],
+                            ['qa', 'QA']
+                        ]
                     },
                     'train': {
                         'type': 'button',
@@ -275,7 +286,19 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
                 pass
         return None
 
-    
+    @XBlock.json_handler
+    def aetool_log_activity(self, data, suffix=''):  # pylint: disable=unused-argument
+        try:
+            r = requests.post('http://elasticsearch:9200/ae-activity-data-stream/_doc/_doc/', data=data)
+            if r.status_code == 200:
+                return r.json()
+            else:
+                print(r.status_code)
+                print(r.text)
+        except:
+            pass
+        return None
+
     @XBlock.json_handler
     def chatbot_init(self, data, suffix=''):  # pylint: disable=unused-argument
         courseId = self._uid().split('@')[0].split(':')[1].replace('+type', '') if len(self._uid().split('@')[0].split(':')) > 1  else self._uid().split('@')[0]
