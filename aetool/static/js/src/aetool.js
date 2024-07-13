@@ -9,7 +9,8 @@ function AEToolXBlock(runtime, element) {
         `definitionId=${encodeURIComponent(wrapper.data('definition-id'))}`,
         `usageId=${encodeURIComponent(wrapper.data('usage-id'))}`,
         `view=${wrapper.data('view')}`,
-      ]
+      ];
+      const handlerUrl = runtime.handlerUrl(element, `aetool_log_activity`);
       const iframe = $('<iframe>').attr({
         title: wrapper.data('title'),
         name: `iframe-${wrapper.data('target')}`,
@@ -25,19 +26,25 @@ function AEToolXBlock(runtime, element) {
       });
       iframe.on('message', console.log);
       iframe.on('load', () => {
-        console.log({
-          'timestamp': new Date().toISOString(),
-          'logLevel': 6,
-          'appID': wrapper.data('aetool'),
-          'userID': wrapper.data('user-name'),
-          'sessionID': '',
-          'flowID': wrapper.data('usage-id'),
-          'eventCategory': 'lmsEvent',
-          'event': 'visit',
-          'note': null,
-          'customFields': {},
-          'tags': []
-        })
+        $.ajax({
+          type: "POST",
+          url: handlerUrl,
+          contentType : 'application/json',
+          data: JSON.stringify({
+            'timestamp': new Date().toISOString(),
+            'logLevel': 6,
+            'appID': wrapper.data('aetool'),
+            'userID': wrapper.data('user-name'),
+            'sessionID': '',
+            'flowID': wrapper.data('usage-id'),
+            'eventCategory': 'lmsEvent',
+            'event': 'visit',
+            'note': null,
+            'customFields': {},
+            'tags': []
+          }),
+          success: console.log
+        });
       })
       return iframe;
     }

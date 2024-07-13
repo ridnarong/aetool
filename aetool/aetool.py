@@ -286,15 +286,19 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
                 pass
         return None
 
-    @XBlock.json_handler
-    def aetool_log_activity(self, data, suffix=''):  # pylint: disable=unused-argument
+    @XBlock.handler
+    def aetool_log_activity(self, request, suffix=''):  # pylint: disable=unused-argument
         try:
-            r = requests.post('http://elasticsearch:9200/ae-activity-data-stream/_doc/_doc/', data=data)
-            if r.status_code == 200:
-                return r.json()
-            else:
-                print(r.status_code)
-                print(r.text)
+            data = json.loads(request.body.decode('utf-8'))
+            data['sessionID'] = request.session.session_key
+            data['userID'] = request.user.social_auth.get().uid
+            # r = requests.post('http://elasticsearch:9200/ae-activity-data-stream/_doc/_doc/', data=data)
+            # if r.status_code == 200:
+            #     return r.json()
+            # else:
+            #     print(r.status_code)
+            #     print(r.text)
+            return data
         except:
             pass
         return None
