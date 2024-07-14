@@ -300,7 +300,8 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         # else:
         #     print(r.status_code)
         #     print(r.text)
-        return Response(่json.dumps(data), content_type='application/json', charset='utf8')
+        print(json.dumps(data))
+        return Response('null', content_type='application/json', charset='utf8')
         # except:
         #     pass
         # return Response('null', content_type='application/json', charset='utf8')
