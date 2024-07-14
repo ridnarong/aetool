@@ -288,20 +288,22 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
 
     @XBlock.handler
     def aetool_log_activity(self, request, suffix=''):  # pylint: disable=unused-argument
-        try:
-            data = json.loads(request.body.decode('utf-8'))
-            data['sessionID'] = request.session.session_key
-            data['userID'] = request.user.social_auth.get().uid
-            # r = requests.post('http://elasticsearch:9200/ae-activity-data-stream/_doc/_doc/', data=data)
-            # if r.status_code == 200:
-            #     return r.json()
-            # else:
-            #     print(r.status_code)
-            #     print(r.text)
-            return data
-        except:
-            pass
-        return None
+        # try:
+        data = json.loads(request.body.decode('utf-8'))
+        print(type(request.session))
+        print(type(request.user))
+        data['sessionID'] = request.session.session_key
+        data['userID'] = request.user.social_auth.get().uid
+        # r = requests.post('http://elasticsearch:9200/ae-activity-data-stream/_doc/_doc/', data=data)
+        # if r.status_code == 200:
+        #     return r.json()
+        # else:
+        #     print(r.status_code)
+        #     print(r.text)
+        return Response(่json.dumps(data), content_type='application/json', charset='utf8')
+        # except:
+        #     pass
+        # return Response('null', content_type='application/json', charset='utf8')
 
     @XBlock.json_handler
     def chatbot_init(self, data, suffix=''):  # pylint: disable=unused-argument
