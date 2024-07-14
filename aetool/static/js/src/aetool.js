@@ -24,28 +24,17 @@ function AEToolXBlock(runtime, element) {
         width: wrapper.data('width') || '100%',
         height: wrapper.data('height') || '100%'
       });
-      iframe.on('message', console.log);
-      iframe.on('load', () => {
-        $.ajax({
-          type: "POST",
-          url: handlerUrl,
-          contentType : 'application/json',
-          data: JSON.stringify({
-            'timestamp': new Date().toISOString(),
-            'logLevel': 6,
-            'appID': wrapper.data('aetool'),
-            'userID': wrapper.data('user-name'),
-            'sessionID': '',
-            'flowID': wrapper.data('usage-id'),
-            'eventCategory': 'lmsEvent',
-            'event': 'visit',
-            'note': null,
-            'customFields': {},
-            'tags': []
-          }),
-          success: console.log
-        });
-      })
+      iframe.on('message', (event) => {
+        if (event.data && event.data.type === 'log' && event.data.body) {
+          $.ajax({
+            type: "POST",
+            url: handlerUrl,
+            contentType : 'application/json',
+            data: JSON.stringify(event.data.body),
+            success: console.log
+          });
+        }
+      });
       return iframe;
     }
   

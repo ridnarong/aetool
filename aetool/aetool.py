@@ -74,6 +74,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
                         'label': 'Type',
                         'help': 'Abdul chatbot type',
                         'choices': [
+                            ['', '--- Select Type ---'],
                             ['quiz', 'Quiz'],
                             ['faq', 'FAQ'],
                             ['qa', 'QA']
@@ -286,25 +287,35 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
                 pass
         return None
 
-    @XBlock.handler
-    def aetool_log_activity(self, request, suffix=''):  # pylint: disable=unused-argument
-        # try:
-        data = json.loads(request.body.decode('utf-8'))
-        print(type(request.session))
-        print(type(request.user))
-        data['sessionID'] = request.session.session_key
-        data['userID'] = request.user.social_auth.get().uid
-        # r = requests.post('http://elasticsearch:9200/ae-activity-data-stream/_doc/_doc/', data=data)
-        # if r.status_code == 200:
-        #     return r.json()
-        # else:
-        #     print(r.status_code)
-        #     print(r.text)
-        print(json.dumps(data))
-        return Response('null', content_type='application/json', charset='utf8')
-        # except:
-        #     pass
-        # return Response('null', content_type='application/json', charset='utf8')
+    @XBlock.json_handler
+    def aetool_log_activity(self, data, suffix=''): # pylint: disable=unused-argument
+        try:
+            keys = [
+                'timestamp',
+                'logLevel',
+                'appID',
+                'userID',
+                'sessionID',
+                'flowID',
+                'eventCategory',
+                'event',
+                'note',
+                'customFields',
+                'tags',
+            ]
+            cleanData = {}
+            for k in keys:
+                cleanData[k] = data.get(k)
+            r = requests.post('http://elasticsearch:9200/ae-activity-data-stream/_doc/_doc/', data=cleanData)
+            if r.status_code == 200:
+                return r.json()
+            else:
+                print(r.status_code)
+                print(r.text)
+            print(json.dumps(cleanData))
+        except:
+            pass
+        return None
 
     @XBlock.json_handler
     def chatbot_init(self, data, suffix=''):  # pylint: disable=unused-argument
@@ -347,7 +358,8 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
                 'coursename': courseName,
                 'sectionname': sectionName,
                 'sheetid': data['sheetId'],
-                'name': data['sheetName']
+                'name': data['sheetName'],
+                'type': data['type']
             })
             if r.status_code == 200:
                 print(r.json())
