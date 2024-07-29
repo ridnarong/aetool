@@ -42,6 +42,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
             {"value": 'simulator', "display_name": 'Simulator'},
             {"value": 'chatbot', "display_name": 'Chatbot'},
             {"value": 'bookroll', "display_name": 'BookRoll'},
+            {"value": 'video', "display_name": 'Video Player'},
             {"value": 'iframe', "display_name": 'External URL'},
         ],
         default='iframe',
@@ -102,12 +103,22 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
             {
                 'display_name': 'iframe',
                 'value': {
-                'iframe_url': {
-                    'type': 'string',
-                    'label': 'IFrame URL',
-                    'help': 'URL of external resources'
+                    'iframe_url': {
+                        'type': 'string',
+                        'label': 'IFrame URL',
+                        'help': 'URL of external resources'
+                    }
                 }
-            }
+            },
+            {
+                'display_name': 'video',
+                'value': {
+                    'video_url': {
+                        'type': 'string',
+                        'label': 'Video URL',
+                        'help': 'YouTube Video URL'
+                    }
+                }
             },
         ]
     )
@@ -143,7 +154,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
             {"value": 'modalWithInline', "display_name": 'Embedded inline with modal'},
             {"value": 'newWindow', "display_name": 'Open new window by button'}
         ],
-        default='modal',
+        default='inline',
         help="Element display option",
         scope=Scope.settings
     )
@@ -291,10 +302,12 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
     def aetool_log_activity(self, data, suffix=''): # pylint: disable=unused-argument
         try:
             keys = [
+                '@timestamp',
                 'timestamp',
                 'logLevel',
                 'appID',
                 'userID',
+                'courseID',
                 'sessionID',
                 'flowID',
                 'eventCategory',
@@ -306,12 +319,12 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
             cleanData = {}
             for k in keys:
                 cleanData[k] = data.get(k)
-            r = requests.post('http://elasticsearch:9200/ae-activity-data-stream/_doc/_doc/', data=cleanData)
-            if r.status_code == 200:
-                return r.json()
-            else:
-                print(r.status_code)
-                print(r.text)
+            # r = requests.post('http://elasticsearch:9200/ae-activity-data-stream/_doc', data=cleanData)
+            # if r.status_code == 200:
+            #     return r.json()
+            # else:
+            #     print(r.status_code)
+            #     print(r.text)
             print(json.dumps(cleanData))
         except:
             pass
@@ -440,6 +453,12 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
     
     @XBlock.json_handler
     def simulator_init(self, data, suffix=''):  # pylint: disable=unused-argument
+        courseId = self._uid().split('@')[0].split(':')[1].replace('+type', '') if len(self._uid().split('@')[0].split(':')) > 1  else self._uid().split('@')[0]
+        blockId = self._uid().split('@')[2] if len(self._uid().split('@')) > 2  else self._uid().split('@')[0]
+        return None
+    
+    @XBlock.json_handler
+    def video_init(self, data, suffix=''):  # pylint: disable=unused-argument
         courseId = self._uid().split('@')[0].split(':')[1].replace('+type', '') if len(self._uid().split('@')[0].split(':')) > 1  else self._uid().split('@')[0]
         blockId = self._uid().split('@')[2] if len(self._uid().split('@')) > 2  else self._uid().split('@')[0]
         return None

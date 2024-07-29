@@ -1,5 +1,18 @@
 /* Javascript for AEToolXBlock. */
 function AEToolXBlock(runtime, element) {
+    const messageHandler = function (event) {
+      const handlerUrl = runtime.handlerUrl(element, `aetool_log_activity`);
+      console.log(event);
+      if (event.data && event.data.type === 'log' && event.data.body) {
+        $.ajax({
+          type: "POST",
+          url: handlerUrl,
+          contentType : 'application/json',
+          data: JSON.stringify(event.data.body),
+          success: console.log
+        });
+      }
+    }
     function createIframeElelment(wrapper) {
       const username = wrapper.data('user-name');
       const userrole = wrapper.data('user-role');
@@ -10,7 +23,6 @@ function AEToolXBlock(runtime, element) {
         `usageId=${encodeURIComponent(wrapper.data('usage-id'))}`,
         `view=${wrapper.data('view')}`,
       ];
-      const handlerUrl = runtime.handlerUrl(element, `aetool_log_activity`);
       const iframe = $('<iframe>').attr({
         title: wrapper.data('title'),
         name: `iframe-${wrapper.data('target')}`,
@@ -24,17 +36,7 @@ function AEToolXBlock(runtime, element) {
         width: wrapper.data('width') || '100%',
         height: wrapper.data('height') || '100%'
       });
-      iframe.on('message', (event) => {
-        if (event.data && event.data.type === 'log' && event.data.body) {
-          $.ajax({
-            type: "POST",
-            url: handlerUrl,
-            contentType : 'application/json',
-            data: JSON.stringify(event.data.body),
-            success: console.log
-          });
-        }
-      });
+      iframe.on('message', messageHandler);
       return iframe;
     }
   
@@ -121,7 +123,7 @@ function AEToolXBlock(runtime, element) {
     function handleOpenNewWindowButtonClick(eventObject) {
       const wrapper = $(eventObject.target.parent);
       const newWindow = window.open(wrapper.data('iframe-url'));
-      newWindow.addEventListener('message', console.log);
+      newWindow.addEventListener('message', messageHandler);
     }
   
     function close_modal(modal) {
@@ -529,6 +531,14 @@ function AEToolXBlockStudio(runtime, element) {
     aetoolFieldEle.val('{}');
   });
   
+  $("#xb-aetool-field-edit-video_url").on('change', function () {
+    $('#xb-field-edit-iframe_url').val(`https://ae-video-player.learning.app.meca.in.th/course-v1:${encodeURIComponent(courseId)}/${encodeURIComponent(this.value)}`)
+    const $wrapper = $('#xb-field-edit-iframe_url').closest('li');
+    const $resetButton = $('#xb-field-edit-iframe_url').find('button.setting-clear');
+    $wrapper.addClass('is-set');
+    $resetButton.removeClass('inactive').addClass('active');
+  })
+
   aetoolConfigEles.on('change', function () {
     var $wrapper = $(aetoolFieldEle).closest('li');
     const d = JSON.parse(aetoolFieldEle.val());
