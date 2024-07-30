@@ -3,7 +3,6 @@ function AEToolXBlock(runtime, element) {
     const messageHandler = function (event) {
       const handlerUrl = runtime.handlerUrl(element, `aetool_log_activity`);
       if (event.data.type && event.data.type === 'log' && event.data.body) {
-        console.log(event)
         $.ajax({
           type: "POST",
           url: handlerUrl,

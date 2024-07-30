@@ -320,7 +320,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
             for k in keys:
                 cleanData[k] = data.get(k)
             print(json.dumps(cleanData))
-            r = requests.post('http://elasticsearch:9200/ae-activity-data-stream/_doc', data=cleanData)
+            r = requests.post('http://elasticsearch:9200/ae-activity-data-stream/_doc', json=cleanData)
             if r.status_code == 200:
                 return r.json()
             else:
