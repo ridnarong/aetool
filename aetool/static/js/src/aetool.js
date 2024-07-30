@@ -2,8 +2,8 @@
 function AEToolXBlock(runtime, element) {
     const messageHandler = function (event) {
       const handlerUrl = runtime.handlerUrl(element, `aetool_log_activity`);
-      console.log(event);
-      if (event.data && event.data.type === 'log' && event.data.body) {
+      if (event.data.type && event.data.type === 'log' && event.data.body) {
+        console.log(event)
         $.ajax({
           type: "POST",
           url: handlerUrl,
@@ -36,7 +36,6 @@ function AEToolXBlock(runtime, element) {
         width: wrapper.data('width') || '100%',
         height: wrapper.data('height') || '100%'
       });
-      iframe.on('message', messageHandler);
       return iframe;
     }
   
@@ -123,7 +122,6 @@ function AEToolXBlock(runtime, element) {
     function handleOpenNewWindowButtonClick(eventObject) {
       const wrapper = $(eventObject.target.parent);
       const newWindow = window.open(wrapper.data('iframe-url'));
-      newWindow.addEventListener('message', messageHandler);
     }
   
     function close_modal(modal) {
@@ -138,6 +136,7 @@ function AEToolXBlock(runtime, element) {
     }
   
       $(function ($) {
+        window.addEventListener('message', messageHandler);
         const wrapper = $(element).find('.wrapper');
         if (wrapper.data('display') === 'inline') {
           wrapper.append(createIframeElelment(wrapper));
