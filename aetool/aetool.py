@@ -5,18 +5,13 @@ from web_fragments.fragment import Fragment
 from xblock.core import XBlock
 from xblock.fields import String, Integer, Scope, JSONField
 from webob import Response
-import urllib.parse
+import urllib
 import json
 import requests
 import time
 from datetime import datetime
-
-try:
-    from xblock.utils.resources import ResourceLoader
-    from xblock.utils.studio_editable import StudioEditableXBlockMixin
-except ModuleNotFoundError:  # For backward compatibility with releases older than Quince.
-    from xblockutils.resources import ResourceLoader
-    from xblockutils.studio_editable import StudioEditableXBlockMixin
+from xblockutils.resources import ResourceLoader
+from xblockutils.studio_editable import StudioEditableXBlockMixin
 
 @XBlock.wants('settings')
 @XBlock.wants('user')
@@ -355,7 +350,7 @@ class AEToolXBlock(StudioEditableXBlockMixin, XBlock):
         courseName = ""
         sectionName = ""
         info = requests.get("http://ae-backend.learning/lms/%s/%s" % (
-            urllib.parse.quote_plus(courseId), urllib.parse.quote_plus(blockId)
+            urllib.pathname2url(courseId), urllib.pathname2url(blockId)
         ))
         if info.status_code == 200:
             courseInfo = {}
